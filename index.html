@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Ultimate Password Security System</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+    overflow:hidden;
+    transition:0.5s;
+    padding:20px;
+}
+
+body.dark{
+    background:#000;
+}
+
+.container{
+    width:450px;
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(15px);
+    border:1px solid rgba(255,255,255,0.2);
+    padding:30px;
+    border-radius:25px;
+    box-shadow:0 10px 40px rgba(0,0,0,0.5);
+    color:white;
+    animation:fadeIn 1s ease;
+}
+
+@keyframes fadeIn{
+    from{
+        transform:translateY(40px);
+        opacity:0;
+    }
+    to{
+        transform:translateY(0);
+        opacity:1;
+    }
+}
+
+h1{
+    text-align:center;
+    margin-bottom:20px;
+    font-size:30px;
+}
+
+.input-box{
+    position:relative;
+}
+
+input{
+    width:100%;
+    padding:15px;
+    border:none;
+    border-radius:12px;
+    outline:none;
+    font-size:17px;
+    background:rgba(255,255,255,0.1);
+    color:white;
+    border:2px solid transparent;
+    transition:0.4s;
+}
+
+input:focus{
+    border-color:#00f2fe;
+    box-shadow:0 0 15px #00f2fe;
+}
+
+.toggle-btn{
+    position:absolute;
+    right:15px;
+    top:15px;
+    cursor:pointer;
+    font-size:14px;
+}
+
+.strength-meter{
+    margin-top:20px;
+    width:100%;
+    height:14px;
+    background:#333;
+    border-radius:20px;
+    overflow:hidden;
+}
+
+.strength-bar{
+    height:100%;
+    width:0%;
+    border-radius:20px;
+    transition:0.5s;
+}
+
+.circle{
+    width:130px;
+    height:130px;
+    border-radius:50%;
+    margin:20px auto;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:28px;
+    font-weight:bold;
+    background:conic-gradient(red 0deg,#333 0deg);
+    transition:0.5s;
+}
+
+.message{
+    text-align:center;
+    font-size:22px;
+    font-weight:bold;
+    margin-top:10px;
+}
+
+.info{
+    text-align:center;
+    margin-top:10px;
+    font-size:14px;
+    color:#ddd;
+}
+
+ul{
+    margin-top:20px;
+    list-style:none;
+}
+
+ul li{
+    margin:10px 0;
+    font-size:15px;
+}
+
+.valid{
+    color:#00ff88;
+}
+
+.invalid{
+    color:#ff4d4d;
+}
+
+.button-group{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-top:20px;
+}
+
+button{
+    padding:13px;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    font-weight:bold;
+    transition:0.3s;
+    color:white;
+}
+
+button:hover{
+    transform:scale(1.04);
+}
+
+.generate{
+    background:linear-gradient(45deg,#00c6ff,#0072ff);
+}
+
+.copy{
+    background:linear-gradient(45deg,#00b09b,#96c93d);
+}
+
+.dark{
+    background:linear-gradient(45deg,#232526,#414345);
+}
+
+.clear{
+    background:linear-gradient(45deg,#ff416c,#ff4b2b);
+}
+
+.history-box{
+    margin-top:20px;
+    background:rgba(255,255,255,0.08);
+    padding:15px;
+    border-radius:15px;
+    max-height:120px;
+    overflow-y:auto;
+}
+
+.history-box h3{
+    margin-bottom:10px;
+}
+
+.history-item{
+    font-size:13px;
+    margin:5px 0;
+    color:#ccc;
+}
+
+.ai-box{
+    margin-top:20px;
+    padding:15px;
+    border-radius:15px;
+    background:rgba(255,255,255,0.08);
+    font-size:14px;
+    line-height:1.6;
+}
+
+.glow{
+    animation:glow 1s infinite alternate;
+}
+
+@keyframes glow{
+    from{
+        box-shadow:0 0 10px lime;
+    }
+    to{
+        box-shadow:0 0 25px lime;
+    }
+}
+
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<h1>🔐 AI Password Security</h1>
+
+<div class="input-box">
+    <input type="password" id="password" placeholder="Enter Secure Password">
+    <span class="toggle-btn" id="toggle">👁</span>
+</div>
+
+<div class="strength-meter">
+    <div class="strength-bar" id="strengthBar"></div>
+</div>
+
+<div class="circle" id="circle">0%</div>
+
+<div class="message" id="message">No Password</div>
+
+<div class="info" id="info">
+    Password security analysis will appear here
+</div>
+
+<ul>
+    <li id="length" class="invalid">❌ Minimum 8 characters</li>
+    <li id="upper" class="invalid">❌ Uppercase letter</li>
+    <li id="lower" class="invalid">❌ Lowercase letter</li>
+    <li id="number" class="invalid">❌ Number</li>
+    <li id="special" class="invalid">❌ Special character</li>
+</ul>
+
+<div class="button-group">
+    <button class="generate" onclick="generatePassword()">⚡ Generate</button>
+    <button class="copy" onclick="copyPassword()">📋 Copy</button>
+    <button class="dark" onclick="toggleDarkMode()">🌙 Theme</button>
+    <button class="clear" onclick="clearPassword()">🗑 Clear</button>
+</div>
+
+<div class="ai-box" id="aiBox">
+🤖 AI Suggestion: Use a long password with random symbols for better protection.
+</div>
+
+<div class="history-box">
+    <h3>🕒 Password History</h3>
+    <div id="history"></div>
+</div>
+
+</div>
+
+<script>
+
+const password = document.getElementById("password");
+const strengthBar = document.getElementById("strengthBar");
+const circle = document.getElementById("circle");
+const message = document.getElementById("message");
+const info = document.getElementById("info");
+const aiBox = document.getElementById("aiBox");
+const history = document.getElementById("history");
+
+password.addEventListener("input",checkStrength);
+
+function checkStrength(){
+
+    const value = password.value;
+
+    const lengthCheck = value.length >= 8;
+    const upperCheck = /[A-Z]/.test(value);
+    const lowerCheck = /[a-z]/.test(value);
+    const numberCheck = /[0-9]/.test(value);
+    const specialCheck = /[^A-Za-z0-9]/.test(value);
+
+    update("length",lengthCheck);
+    update("upper",upperCheck);
+    update("lower",lowerCheck);
+    update("number",numberCheck);
+    update("special",specialCheck);
+
+    let score = 0;
+
+    if(lengthCheck) score += 20;
+    if(upperCheck) score += 20;
+    if(lowerCheck) score += 20;
+    if(numberCheck) score += 20;
+    if(specialCheck) score += 20;
+
+    circle.innerHTML = score + "%";
+
+    if(score <= 40){
+
+        strengthBar.style.width = "40%";
+        strengthBar.style.background = "#ff4d4d";
+
+        circle.style.background =
+        `conic-gradient(#ff4d4d ${score*3.6}deg,#333 0deg)`;
+
+        message.innerHTML = "Weak";
+        message.style.color = "#ff4d4d";
+
+        info.innerHTML =
+        "⚠ Easily crackable password";
+
+        aiBox.innerHTML =
+        "🤖 AI Suggestion: Add uppercase letters, numbers and symbols.";
+
+    }
+
+    else if(score <= 80){
+
+        strengthBar.style.width = "75%";
+        strengthBar.style.background = "orange";
+
+        circle.style.background =
+        `conic-gradient(orange ${score*3.6}deg,#333 0deg)`;
+
+        message.innerHTML = "Medium";
+        message.style.color = "orange";
+
+        info.innerHTML =
+        "🕒 Moderate protection level";
+
+        aiBox.innerHTML =
+        "🤖 AI Suggestion: Increase password length to 12+.";
+
+    }
+
+    else{
+
+        strengthBar.style.width = "100%";
+        strengthBar.style.background = "#00ff88";
+
+        circle.style.background =
+        `conic-gradient(#00ff88 ${score*3.6}deg,#333 0deg)`;
+
+        message.innerHTML = "Ultra Strong";
+        message.style.color = "#00ff88";
+
+        circle.classList.add("glow");
+
+        info.innerHTML =
+        "🔒 Military level password strength";
+
+        aiBox.innerHTML =
+        "🤖 AI Suggestion: Excellent password security.";
+
+    }
+
+}
+
+function update(id,valid){
+
+    const el = document.getElementById(id);
+
+    if(valid){
+
+        el.classList.remove("invalid");
+        el.classList.add("valid");
+
+        el.innerHTML =
+        "✔ " + el.innerHTML.substring(2);
+
+    }
+
+    else{
+
+        el.classList.remove("valid");
+        el.classList.add("invalid");
+
+        el.innerHTML =
+        "❌ " + el.innerHTML.substring(2);
+
+    }
+
+}
+
+document.getElementById("toggle")
+.addEventListener("click",()=>{
+
+    if(password.type === "password"){
+
+        password.type = "text";
+
+    }else{
+
+        password.type = "password";
+
+    }
+
+});
+
+function generatePassword(){
+
+    const chars =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%^&*!";
+
+    let generated = "";
+
+    for(let i=0;i<16;i++){
+
+        generated += chars.charAt(
+            Math.floor(Math.random()*chars.length)
+        );
+
+    }
+
+    password.value = generated;
+
+    addHistory(generated);
+
+    checkStrength();
+
+}
+
+function copyPassword(){
+
+    navigator.clipboard.writeText(password.value);
+
+    alert("✅ Password Copied");
+
+}
+
+function clearPassword(){
+
+    password.value = "";
+
+    strengthBar.style.width = "0%";
+
+    circle.innerHTML = "0%";
+
+    message.innerHTML = "No Password";
+
+    info.innerHTML =
+    "Password security analysis will appear here";
+
+}
+
+function toggleDarkMode(){
+
+    document.body.classList.toggle("dark");
+
+}
+
+function addHistory(pass){
+
+    const div = document.createElement("div");
+
+    div.classList.add("history-item");
+
+    div.innerHTML = "🔑 " + pass;
+
+    history.prepend(div);
+
+}
+
+</script>
+
+</body>
+</html>
